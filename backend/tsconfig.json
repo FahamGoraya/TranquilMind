@@ -19,7 +19,8 @@
     "strict": true,
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": true,
+    "experimentalDecorators": true
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules", "dist"]
