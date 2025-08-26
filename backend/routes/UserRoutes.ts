@@ -1,8 +1,14 @@
 import { Router } from "express";
-import { createUser } from "../controllers/userController";
+import { createUser, LoginUser } from "../controllers/userController";
+import verifyJWT from "../middleware/verifyjwt";
 const router = Router();
 
 //router create user
-router.get("/create", createUser);
+router.post("/create", createUser);
+//router login user
+router.post("/login", LoginUser);
+router.get("/me", verifyJWT, (req, res) => {
+  res.json({ success: true, message: "You are authenticated" });
+});
 
 export default router;

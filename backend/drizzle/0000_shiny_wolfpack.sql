@@ -3,5 +3,6 @@ CREATE TABLE "users" (
 	"email" text NOT NULL,
 	"name" text NOT NULL,
 	"age" integer NOT NULL,
+	"password" text NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );

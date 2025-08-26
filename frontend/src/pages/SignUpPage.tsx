@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import "./SignUpPage.css";
-
+import axios from "axios";
+import { useNavigate } from "react-router";
+import { useEffect } from "react";
 const SignUpPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -13,6 +16,24 @@ const SignUpPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get("http://localhost:3005/api/users/me", {
+          withCredentials: true,
+        });
+        //go to dashboard
+        if (response.data.success) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,22 +43,50 @@ const SignUpPage = () => {
     }));
   };
 
+  // ✅ Added showError helper
+  const showError = (message: string) => {
+    setError(message);
+    setTimeout(() => setError(""), 5000); // auto-hide after 5s
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
-    if (!agreedToTerms) {
-      alert("Please agree to the terms and conditions");
+    if (!formData.email.includes("@")) {
+      showError("Please enter a valid email address");
       return;
     }
 
-    setIsLoading(true);
+    if (formData.password !== formData.confirmPassword) {
+      showError("Passwords do not match");
+      return;
+    }
 
-    // Simulate API call
-    setTimeout(() => {
+    if (!agreedToTerms) {
+      showError("Please agree to the terms and conditions");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const promise = await axios.post(
+        "http://localhost:3005/api/users/create",
+        formData
+      );
+      const data = promise.data;
+      if (data.success) {
+        showError("Account created successfully!");
+      } else {
+        showError(data.message);
+      }
+    } catch (error) {
+      showError("Error creating account");
+      console.error(error);
+    } finally {
       setIsLoading(false);
-      console.log("Account created:", formData);
-      alert("Account created successfully!");
-    }, 2000);
+      navigate("/");
+    }
   };
 
   return (
@@ -53,15 +102,15 @@ const SignUpPage = () => {
       {/* Navigation */}
       <nav className="signup-nav">
         <div className="nav-content">
-          <div className="nav-logo">
+          <a className="nav-logo" href="/">
             <div className="logo-icon">🧠</div>
             <span>TranquilMind</span>
-          </div>
+          </a>
           <div className="nav-links">
             <a href="/" className="nav-link">
               Back to Home
             </a>
-            <a href="/signin" className="nav-link">
+            <a href="/login" className="nav-link">
               Sign In
             </a>
           </div>
@@ -79,12 +128,24 @@ const SignUpPage = () => {
             <h1 className="signup-title">
               Start Your <span className="gradient-text">Wellness Journey</span>
             </h1>
+
+            {/* ✅ Error Message placed between Wellness and Subtitle */}
+            {error && (
+              <div className="error-message">
+                <span>{error}</span>
+                <button className="error-close" onClick={() => setError("")}>
+                  ×
+                </button>
+              </div>
+            )}
+
             <p className="signup-subtitle">
               Join thousands of users finding peace and support with our AI
               companion
             </p>
           </div>
 
+          {/* Sign Up Form */}
           <form className="signup-form" onSubmit={handleSubmit}>
             {/* Name Row */}
             <div className="form-row">
@@ -233,7 +294,7 @@ const SignUpPage = () => {
           <div className="signup-footer">
             <p>
               Already have an account?{" "}
-              <a href="/signin" className="signin-link">
+              <a href="/login" className="signin-link">
                 Sign in here
               </a>
             </p>

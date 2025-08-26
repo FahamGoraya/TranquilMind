@@ -41,10 +41,10 @@ const TranquilMindLanding: React.FC = () => {
       {/* Navigation */}
       <nav className="navbar">
         <div className="nav-container">
-          <div className="nav-logo">
+          <a className="nav-logo" href="/">
             <div className="logo-icon">🧠</div>
             <span>TranquilMind</span>
-          </div>
+          </a>
           <div className={`nav-menu ${isMenuOpen ? "nav-menu-open" : ""}`}>
             <a href="#features" className="nav-link">
               Features
@@ -53,7 +53,12 @@ const TranquilMindLanding: React.FC = () => {
               How It Works
             </a>
 
-            <button className="btn-secondary">Sign In</button>
+            <button
+              className="btn-secondary"
+              onClick={() => navigate("/login")}
+            >
+              Sign In
+            </button>
             <button className="btn-primary" onClick={() => navigate("/signup")}>
               Get Started
             </button>
